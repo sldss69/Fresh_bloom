@@ -4,6 +4,9 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { QueryProvider } from "@/providers/QueryProvider";
+import { WhatsAppFloat } from "@/components/ui/WhatsAppFloat";
+import { CustomCursor } from "@/components/ui/CustomCursor";
+import { ScrollProgress } from "@/components/ui/ScrollProgress";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -34,9 +37,12 @@ export default function RootLayout({
     <html lang="es" className={`${playfair.variable} ${montserrat.variable}`}>
       <body className="flex min-h-screen flex-col antialiased">
         <QueryProvider>
+          <ScrollProgress />
+          <CustomCursor />
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
+          <WhatsAppFloat />
         </QueryProvider>
       </body>
     </html>

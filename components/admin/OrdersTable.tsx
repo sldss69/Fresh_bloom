@@ -48,8 +48,8 @@ const statusStyles: Record<OrderRecord["status"], string> = {
   pending: "bg-amber-50 text-amber-800 ring-amber-200",
   approved: "bg-emerald-50 text-emerald-800 ring-emerald-200",
   rejected: "bg-red-50 text-red-800 ring-red-200",
-  cancelled: "bg-neutral-100 text-neutral-700 ring-neutral-200",
-  cash_pending: "bg-sky-50 text-sky-800 ring-sky-200",
+  cancelled: "bg-brand-beige/40 text-brand-ink/60 ring-brand-wine/15",
+  cash_pending: "bg-brand-wine/10 text-brand-wine ring-brand-wine/25",
 };
 
 const paymentMethodLabels: Record<OrderRecord["paymentMethod"], string> = {
@@ -77,12 +77,12 @@ export function OrdersTable({ orders }: OrdersTableProps) {
 
   if (orders.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-neutral-300 bg-white px-6 py-12 text-center shadow-sm">
-        <ShoppingBag className="mx-auto h-9 w-9 text-neutral-400" />
-        <p className="mt-4 text-base font-black text-neutral-950">
+      <div className="rounded-xl border border-dashed border-brand-wine/20 bg-white px-6 py-12 text-center shadow-sm">
+        <ShoppingBag className="mx-auto h-9 w-9 text-brand-wine/30" />
+        <p className="mt-4 font-heading text-base font-bold text-brand-ink">
           Todavía no hay pedidos guardados
         </p>
-        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-neutral-600">
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-brand-ink/50">
           Cuando entren compras o pedidos por WhatsApp, aparecerán aquí para
           darles seguimiento desde una sola pantalla.
         </p>
@@ -196,31 +196,31 @@ function ModuleHeader({
   ];
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-2 shadow-sm">
+    <div className="rounded-xl border border-brand-wine/15 bg-white p-2 shadow-sm">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center gap-3 px-2 py-1">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-wine/10 text-brand-wine">
             <LayoutDashboard className="h-5 w-5" />
           </span>
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-neutral-500">
+            <p className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-brand-wine/60">
               Módulo actual
             </p>
-            <p className="text-lg font-black text-neutral-950">
+            <p className="font-heading text-lg font-bold text-brand-ink">
               {moduleLabels[activeModule]}
             </p>
           </div>
         </div>
-        <nav className="flex gap-1 overflow-x-auto rounded-lg bg-neutral-100 p-1">
+        <nav className="flex gap-1 overflow-x-auto rounded-lg bg-brand-cream p-1">
           {modules.map((module) => (
             <button
               key={module}
               type="button"
               onClick={() => onChange(module)}
-              className={`h-9 shrink-0 rounded-md px-3 text-sm font-black transition ${
+              className={`h-9 shrink-0 rounded-md px-3 text-sm font-semibold transition ${
                 activeModule === module
-                  ? "bg-white text-neutral-950 shadow-sm"
-                  : "text-neutral-500 hover:bg-white/70 hover:text-neutral-900"
+                  ? "bg-white text-brand-ink shadow-sm"
+                  : "text-brand-ink/45 hover:bg-white/70 hover:text-brand-ink/70"
               }`}
             >
               {moduleLabels[module]}
@@ -251,24 +251,28 @@ function MetricCard({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-lg border bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-neutral-300 hover:shadow-md ${
-        active ? "border-neutral-950 ring-2 ring-neutral-950/10" : "border-neutral-200"
+      className={`rounded-xl border bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
+        active
+          ? "border-brand-wine ring-2 ring-brand-wine/20"
+          : "border-brand-wine/15 hover:border-brand-wine/30"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
-        <p className="text-xs font-black uppercase tracking-[0.16em] text-neutral-500">
+        <p className="text-[0.6rem] font-bold uppercase tracking-[0.18em] text-brand-ink/45">
           {label}
         </p>
-        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-neutral-700">
+        <span className={`flex h-10 w-10 items-center justify-center rounded-lg transition ${
+          active ? "bg-brand-wine/10 text-brand-wine" : "bg-brand-cream text-brand-wine/60"
+        }`}>
           {icon}
         </span>
       </div>
-      <p className="mt-8 text-3xl font-black tracking-tight text-neutral-950">
+      <p className="font-heading mt-8 text-3xl font-bold tracking-tight text-brand-ink">
         {value}
       </p>
       <div className="mt-2 flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-neutral-500">{detail}</p>
-        <ArrowRight className="h-4 w-4 text-neutral-400" />
+        <p className="text-sm font-medium text-brand-ink/45">{detail}</p>
+        <ArrowRight className={`h-4 w-4 transition ${active ? "text-brand-wine" : "text-brand-ink/25"}`} />
       </div>
     </button>
   );
@@ -288,27 +292,37 @@ function AdminOverview({
   onSelectOrder: (orderId: string) => void;
 }) {
   const latestOrders = orders.slice(0, 4);
+  const todayStr = new Intl.DateTimeFormat("es-MX", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(new Date());
 
   return (
     <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-      <div className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm">
+      <div className="rounded-xl border border-brand-wine/15 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-neutral-500">
+            <p className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-brand-wine">
               Admin
             </p>
-            <h2 className="mt-2 text-2xl font-black text-neutral-950">
+            <h2 className="font-heading mt-2 text-2xl font-bold text-brand-ink">
               Resumen operativo
             </h2>
           </div>
-          <p className="text-sm font-semibold text-neutral-500">
-            {orders.length} pedidos en la base local
-          </p>
+          <div className="flex flex-col items-end gap-1">
+            <span className="rounded-full bg-brand-beige/50 px-3 py-1 text-[0.62rem] font-semibold capitalize text-brand-ink/60">
+              {todayStr}
+            </span>
+            <p className="text-sm font-medium text-brand-ink/45">
+              {orders.length} pedidos en la base local
+            </p>
+          </div>
         </div>
 
         <div className="mt-6 grid gap-3 md:grid-cols-3">
           <SummaryTile label="Ticket promedio" value={formatMoney(summary.averageTicket)} />
-          <SummaryTile label="Aprobación" value={`${summary.approvalRate}%`} />
+          <SummaryTile label="Tasa de aprobación" value={`${summary.approvalRate}%`} />
           <SummaryTile label="Efectivo pendiente" value={String(summary.cashPendingOrders)} />
         </div>
 
@@ -336,8 +350,8 @@ function AdminOverview({
         </div>
       </div>
 
-      <div className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm">
-        <p className="text-xs font-black uppercase tracking-[0.16em] text-neutral-500">
+      <div className="rounded-xl border border-brand-wine/15 bg-white p-5 shadow-sm">
+        <p className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-brand-wine">
           Actividad reciente
         </p>
         <div className="mt-4 space-y-3">
@@ -349,12 +363,12 @@ function AdminOverview({
                 onSelectOrder(order.id);
                 onOpenModule("orders");
               }}
-              className="w-full rounded-lg border border-neutral-100 bg-neutral-50 p-3 text-left transition hover:border-neutral-300 hover:bg-white"
+              className="w-full rounded-lg border border-brand-wine/10 bg-brand-cream/30 p-3 text-left transition hover:border-brand-wine/25 hover:bg-white"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="font-black text-neutral-950">{order.customer.name}</p>
-                  <p className="mt-1 text-xs font-semibold text-neutral-500">
+                  <p className="font-semibold text-brand-ink">{order.customer.name}</p>
+                  <p className="mt-1 text-xs font-medium text-brand-ink/40">
                     {order.id}
                   </p>
                 </div>
@@ -366,10 +380,10 @@ function AdminOverview({
         <button
           type="button"
           onClick={() => onOpenModule("deliveries")}
-          className="mt-4 flex w-full items-center justify-between rounded-lg bg-[#fff8ec] px-4 py-3 text-left text-sm font-black text-neutral-950 transition hover:bg-[#fff2dc]"
+          className="mt-4 flex w-full items-center justify-between rounded-lg bg-brand-beige/30 px-4 py-3 text-left text-sm font-semibold text-brand-ink transition hover:bg-brand-beige/50"
         >
           {deliveryQueue.length} entregas próximas
-          <ArrowRight className="h-4 w-4" />
+          <ArrowRight className="h-4 w-4 text-brand-wine" />
         </button>
       </div>
     </section>
@@ -441,7 +455,7 @@ function RevenueModule({
 
   return (
     <section className="grid gap-5 xl:grid-cols-[360px_minmax(0,1fr)]">
-      <div className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm">
+      <div className="rounded-xl border border-brand-wine/15 bg-white p-5 shadow-sm">
         <ModuleTitle
           eyebrow="Ingresos"
           title={formatMoney(summary.approvedRevenue)}
@@ -453,8 +467,8 @@ function RevenueModule({
           <SummaryTile label="Ticket promedio" value={formatMoney(summary.averageTicket)} />
         </div>
       </div>
-      <div className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm">
-        <p className="text-xs font-black uppercase tracking-[0.16em] text-neutral-500">
+      <div className="rounded-xl border border-brand-wine/15 bg-white p-5 shadow-sm">
+        <p className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-brand-wine">
           Pedidos aprobados
         </p>
         <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -553,14 +567,14 @@ function OrderFilters({
   onPaymentChange: (payment: PaymentFilter) => void;
 }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-brand-wine/15 bg-white p-4 shadow-sm">
       <div className="grid gap-3 lg:grid-cols-[minmax(220px,1fr)_180px_180px]">
         <label className="relative block">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-ink/30" />
           <input
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
-            className="h-10 w-full rounded-lg border border-neutral-200 bg-neutral-50 pl-9 pr-3 text-sm font-medium text-neutral-950 outline-none transition focus:border-neutral-400 focus:bg-white"
+            className="h-10 w-full rounded-lg border border-brand-wine/15 bg-brand-cream/50 pl-9 pr-3 text-sm font-medium text-brand-ink outline-none transition focus:border-brand-wine/50 focus:bg-white placeholder:text-brand-ink/35"
             placeholder="Buscar pedido, cliente, teléfono o producto"
           />
         </label>
@@ -602,10 +616,10 @@ function OrdersList({
   onSelectOrder: (orderId: string) => void;
 }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-brand-wine/15 bg-white shadow-sm">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-neutral-200 text-sm">
-          <thead className="bg-neutral-50 text-left text-xs font-black uppercase tracking-[0.16em] text-neutral-500">
+        <table className="min-w-full divide-y divide-brand-wine/8 text-sm">
+          <thead className="bg-brand-cream/60 text-left text-[0.6rem] font-bold uppercase tracking-[0.18em] text-brand-wine/70">
             <tr>
               <th className="px-4 py-3">Pedido</th>
               <th className="px-4 py-3">Cliente</th>
@@ -615,48 +629,48 @@ function OrdersList({
               <th className="px-4 py-3">Operación</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100">
+          <tbody className="divide-y divide-brand-wine/6">
             {orders.map((order) => (
               <tr
                 key={order.id}
-                className={`align-top transition hover:bg-neutral-50 ${
-                  selectedOrderId === order.id ? "bg-[#fff8ec]" : ""
+                className={`align-top transition hover:bg-brand-cream/40 ${
+                  selectedOrderId === order.id ? "bg-brand-beige/25" : ""
                 }`}
               >
                 <td className="px-4 py-4">
                   <button
                     type="button"
                     onClick={() => onSelectOrder(order.id)}
-                    className="text-left font-black text-neutral-950 underline-offset-4 hover:underline"
+                    className="text-left font-semibold text-brand-wine underline-offset-4 hover:underline"
                   >
                     {order.id}
                   </button>
-                  <p className="mt-1 text-xs text-neutral-500">
+                  <p className="mt-1 text-xs text-brand-ink/40">
                     {formatDateTime(order.createdAt)}
                   </p>
                 </td>
                 <td className="px-4 py-4">
-                  <p className="font-semibold text-neutral-950">
+                  <p className="font-semibold text-brand-ink">
                     {order.customer.name}
                   </p>
-                  <p className="mt-1 text-neutral-600">
+                  <p className="mt-1 text-brand-ink/55">
                     {formatPhone(order.customer.phone)}
                   </p>
-                  <p className="mt-1 max-w-[18rem] text-xs leading-5 text-neutral-500">
+                  <p className="mt-1 max-w-[18rem] text-xs leading-5 text-brand-ink/40">
                     {order.customer.address}
                   </p>
                 </td>
-                <td className="px-4 py-4 text-neutral-700">
+                <td className="px-4 py-4 text-brand-ink/65">
                   <p className="font-semibold">{formatDeliveryDate(order)}</p>
-                  <p className="mt-1 text-xs text-neutral-500">
+                  <p className="mt-1 text-xs text-brand-ink/40">
                     {order.deliverySchedule.timeWindow || "Sin horario"}
                   </p>
                 </td>
                 <td className="px-4 py-4">
-                  <p className="font-black text-neutral-950">
+                  <p className="font-bold text-brand-ink">
                     {formatMoney(order.total)}
                   </p>
-                  <p className="mt-1 text-xs text-neutral-500">
+                  <p className="mt-1 text-xs text-brand-ink/40">
                     {paymentMethodLabels[order.paymentMethod]}
                   </p>
                 </td>
@@ -683,7 +697,7 @@ function OrdersList({
         </table>
       </div>
       {orders.length === 0 ? (
-        <div className="border-t border-neutral-100 px-6 py-12 text-center text-sm text-neutral-600">
+        <div className="border-t border-brand-wine/8 px-6 py-12 text-center text-sm text-brand-ink/50">
           No hay pedidos con esos filtros.
         </div>
       ) : null}
@@ -693,18 +707,18 @@ function OrdersList({
 
 function OrderDetail({ order }: { order: OrderRecord }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-brand-wine/15 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.16em] text-neutral-500">
+          <p className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-brand-wine">
             Detalle activo
           </p>
-          <h2 className="mt-2 text-xl font-black text-neutral-950">{order.id}</h2>
+          <h2 className="font-heading mt-2 text-xl font-bold text-brand-ink">{order.id}</h2>
         </div>
         <StatusIcon status={order.status} />
       </div>
 
-      <div className="mt-4 grid gap-3 border-y border-neutral-100 py-4 text-sm">
+      <div className="mt-4 grid gap-3 border-y border-brand-wine/10 py-4 text-sm">
         <InfoRow label="Cliente" value={order.customer.name} />
         <InfoRow label="Teléfono" value={formatPhone(order.customer.phone)} />
         <InfoRow
@@ -717,22 +731,22 @@ function OrderDetail({ order }: { order: OrderRecord }) {
       </div>
 
       <div className="mt-4">
-        <p className="text-xs font-black uppercase tracking-[0.16em] text-neutral-500">
+        <p className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-brand-wine">
           Productos
         </p>
         <div className="mt-2 space-y-2">
           {order.items.map((item) => (
             <div
               key={`${order.id}-${item.id}-${item.name}`}
-              className="rounded-lg bg-neutral-50 p-3 text-sm"
+              className="rounded-lg bg-brand-cream/50 p-3 text-sm"
             >
               <div className="flex items-start justify-between gap-3">
-                <p className="font-bold text-neutral-950">{item.name}</p>
-                <p className="shrink-0 font-black text-neutral-950">
+                <p className="font-semibold text-brand-ink">{item.name}</p>
+                <p className="shrink-0 font-bold text-brand-ink">
                   {formatMoney(item.total)}
                 </p>
               </div>
-              <p className="mt-1 text-xs font-semibold text-neutral-500">
+              <p className="mt-1 text-xs font-medium text-brand-ink/45">
                 {item.quantity} x {formatMoney(item.unitPrice)}
               </p>
             </div>
@@ -741,13 +755,13 @@ function OrderDetail({ order }: { order: OrderRecord }) {
       </div>
 
       {order.customer.notes ? (
-        <div className="mt-4 rounded-lg bg-[#fff8ec] p-3 text-sm leading-6 text-neutral-700">
-          <p className="font-black text-neutral-950">Notas</p>
+        <div className="mt-4 rounded-lg bg-brand-beige/30 p-3 text-sm leading-6 text-brand-ink/70">
+          <p className="font-semibold text-brand-ink">Notas</p>
           <p className="mt-1">{order.customer.notes}</p>
         </div>
       ) : null}
 
-      <div className="mt-4 grid gap-2 text-xs font-bold text-neutral-600">
+      <div className="mt-4 grid gap-2 text-xs font-semibold text-brand-ink/50">
         <div className="flex items-center justify-between gap-3">
           <span>WhatsApp</span>
           <span>{order.whatsappStatus ?? "pending"}</span>
@@ -788,17 +802,17 @@ function OperationalCard({
   onOpenOrder: (orderId: string) => void;
 }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-brand-wine/15 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-black text-neutral-950">{order.customer.name}</p>
-          <p className="mt-1 text-xs font-semibold text-neutral-500">
+          <p className="font-semibold text-brand-ink">{order.customer.name}</p>
+          <p className="mt-1 text-xs font-medium text-brand-ink/40">
             {order.id}
           </p>
         </div>
         <StatusBadge status={order.status} />
       </div>
-      <div className="mt-4 grid gap-2 text-sm text-neutral-600">
+      <div className="mt-4 grid gap-2 text-sm text-brand-ink/65">
         <InfoRow label="Entrega" value={formatDelivery(order)} />
         <InfoRow label="Total" value={formatMoney(order.total)} strong />
         <InfoRow label="Pago" value={paymentMethodLabels[order.paymentMethod]} />
@@ -807,7 +821,7 @@ function OperationalCard({
         <button
           type="button"
           onClick={() => onOpenOrder(order.id)}
-          className="inline-flex h-9 items-center justify-center rounded-lg border border-neutral-200 bg-white px-3 text-sm font-black text-neutral-800 transition hover:border-neutral-400 hover:bg-neutral-50"
+          className="inline-flex h-9 items-center justify-center rounded-lg border border-brand-wine/20 bg-white px-3 text-sm font-semibold text-brand-wine transition hover:border-brand-wine/40 hover:bg-brand-cream/50"
         >
           Ver pedido
         </button>
@@ -823,19 +837,19 @@ function OperationalCard({
 
 function OrderMiniCard({ order }: { order: OrderRecord }) {
   return (
-    <div className="rounded-lg border border-neutral-100 bg-neutral-50 p-4">
+    <div className="rounded-lg border border-brand-wine/10 bg-brand-cream/50 p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-black text-neutral-950">{order.customer.name}</p>
-          <p className="mt-1 text-xs font-semibold text-neutral-500">
+          <p className="font-semibold text-brand-ink">{order.customer.name}</p>
+          <p className="mt-1 text-xs font-medium text-brand-ink/40">
             {order.id}
           </p>
         </div>
-        <p className="shrink-0 font-black text-neutral-950">
+        <p className="shrink-0 font-bold text-brand-ink">
           {formatMoney(order.total)}
         </p>
       </div>
-      <p className="mt-3 text-sm font-semibold text-neutral-500">
+      <p className="mt-3 text-sm font-medium text-brand-ink/45">
         {paymentMethodLabels[order.paymentMethod]}
       </p>
     </div>
@@ -853,11 +867,11 @@ function ModuleTitle({
 }) {
   return (
     <div>
-      <p className="text-xs font-black uppercase tracking-[0.16em] text-neutral-500">
+      <p className="text-[0.6rem] font-bold uppercase tracking-[0.2em] text-brand-wine">
         {eyebrow}
       </p>
-      <h2 className="mt-2 text-2xl font-black text-neutral-950">{title}</h2>
-      <p className="mt-1 max-w-2xl text-sm leading-6 text-neutral-600">
+      <h2 className="font-heading mt-2 text-2xl font-bold text-brand-ink">{title}</h2>
+      <p className="mt-1 max-w-2xl text-sm leading-6 text-brand-ink/55">
         {description}
       </p>
     </div>
@@ -866,11 +880,11 @@ function ModuleTitle({
 
 function SummaryTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-neutral-100 bg-neutral-50 p-4">
-      <p className="text-xs font-black uppercase tracking-[0.14em] text-neutral-500">
+    <div className="rounded-lg border border-brand-wine/12 bg-brand-cream/50 p-4">
+      <p className="text-[0.6rem] font-bold uppercase tracking-[0.16em] text-brand-wine/70">
         {label}
       </p>
-      <p className="mt-2 text-xl font-black text-neutral-950">{value}</p>
+      <p className="font-heading mt-2 text-xl font-bold text-brand-ink">{value}</p>
     </div>
   );
 }
@@ -888,14 +902,14 @@ function ModuleShortcut({
     <button
       type="button"
       onClick={onClick}
-      className="rounded-lg border border-neutral-200 bg-white p-4 text-left transition hover:border-neutral-400 hover:bg-neutral-50"
+      className="rounded-lg border border-brand-wine/15 bg-white p-4 text-left transition hover:border-brand-wine/30 hover:bg-brand-cream/30"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-black text-neutral-950">{title}</p>
-          <p className="mt-1 text-sm leading-6 text-neutral-600">{description}</p>
+          <p className="font-semibold text-brand-ink">{title}</p>
+          <p className="mt-1 text-sm leading-6 text-brand-ink/55">{description}</p>
         </div>
-        <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-neutral-400" />
+        <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-brand-wine/40" />
       </div>
     </button>
   );
@@ -903,7 +917,7 @@ function ModuleShortcut({
 
 function EmptyModule({ message }: { message: string }) {
   return (
-    <div className="rounded-lg border border-dashed border-neutral-300 bg-white p-8 text-center text-sm font-semibold text-neutral-600">
+    <div className="rounded-xl border border-dashed border-brand-wine/20 bg-white p-8 text-center text-sm font-medium text-brand-ink/50">
       {message}
     </div>
   );
@@ -926,7 +940,7 @@ function SelectFilter({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-10 w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 text-sm font-bold text-neutral-800 outline-none transition focus:border-neutral-400 focus:bg-white"
+        className="h-10 w-full rounded-lg border border-brand-wine/15 bg-brand-cream/50 px-3 text-sm font-medium text-brand-ink/75 outline-none transition focus:border-brand-wine/50 focus:bg-white"
       >
         {options.map(([optionValue, optionLabel]) => (
           <option key={optionValue} value={optionValue}>
@@ -949,10 +963,10 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-start justify-between gap-4">
-      <span className="text-neutral-500">{label}</span>
+      <span className="text-brand-ink/45">{label}</span>
       <span
         className={`max-w-[14rem] text-right ${
-          strong ? "font-black text-neutral-950" : "font-semibold text-neutral-800"
+          strong ? "font-bold text-brand-ink" : "font-medium text-brand-ink/70"
         }`}
       >
         {value}
@@ -977,7 +991,7 @@ function ActionLink({
       href={href}
       target={href.startsWith("http") ? "_blank" : undefined}
       rel={href.startsWith("http") ? "noreferrer" : undefined}
-      className={`inline-flex items-center justify-center gap-1.5 rounded-lg border border-neutral-200 bg-white font-black text-neutral-800 transition hover:border-neutral-400 hover:bg-neutral-50 ${
+      className={`inline-flex items-center justify-center gap-1.5 rounded-lg border border-brand-wine/20 bg-white font-semibold text-brand-ink/75 transition hover:border-brand-wine/40 hover:bg-brand-cream/40 ${
         large ? "h-10 px-3 text-sm" : "h-9 px-3 text-xs"
       }`}
     >
@@ -991,7 +1005,7 @@ function ActionLink({
 function StatusBadge({ status }: { status: OrderRecord["status"] }) {
   return (
     <span
-      className={`inline-flex rounded-md px-2 py-1 text-xs font-black ring-1 ${statusStyles[status]}`}
+      className={`inline-flex rounded-md px-2 py-1 text-xs font-semibold ring-1 ${statusStyles[status]}`}
     >
       {statusLabels[status]}
     </span>
@@ -1004,14 +1018,14 @@ function StatusIcon({ status }: { status: OrderRecord["status"] }) {
   }
 
   if (status === "rejected" || status === "cancelled") {
-    return <XCircle className="h-7 w-7 text-red-600" />;
+    return <XCircle className="h-7 w-7 text-red-500" />;
   }
 
   if (status === "cash_pending") {
-    return <PackageCheck className="h-7 w-7 text-sky-600" />;
+    return <PackageCheck className="h-7 w-7 text-brand-wine" />;
   }
 
-  return <ClipboardList className="h-7 w-7 text-amber-600" />;
+  return <ClipboardList className="h-7 w-7 text-amber-500" />;
 }
 
 function filterOrders(
@@ -1170,5 +1184,5 @@ function normalize(value: string) {
   return value
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+    .replace(/[̀-ͯ]/g, "");
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Leaf, Plus, ShoppingBag } from "lucide-react";
 import { motion } from "motion/react";
@@ -16,14 +17,40 @@ interface ProductCardProps {
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
-  const hasImage = false; // cambiar a true cuando se agreguen imágenes
+  const hasImage = false;
+  const cardRef = useRef<HTMLElement>(null);
+
+  function handleMouseMove(e: React.MouseEvent<HTMLElement>) {
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    el.style.transform = `perspective(800px) rotateY(${x * 8}deg) rotateX(${y * -8}deg) scale3d(1.015,1.015,1.015)`;
+  }
+
+  function handleMouseEnter() {
+    if (cardRef.current) cardRef.current.style.willChange = "transform";
+  }
+
+  function handleMouseLeave() {
+    const el = cardRef.current;
+    if (!el) return;
+    el.style.transform = "";
+    el.style.willChange = "auto";
+  }
 
   return (
     <motion.article
+      ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.55, delay: (index % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
+      onMouseEnter={handleMouseEnter}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ transition: "transform 0.15s ease, box-shadow 0.15s ease" }}
       className="group flex flex-col overflow-hidden rounded-2xl border border-brand-wine/10 bg-white shadow-sm transition-shadow hover:shadow-md"
     >
       {/* ── Imagen ─────────────────────────────────────────── */}
