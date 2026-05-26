@@ -231,7 +231,7 @@ export default function CheckoutPage() {
                     onChange={(event) =>
                       updateCustomer("postalCode", event.target.value)
                     }
-                    className="h-12 rounded-lg border bg-white px-3 text-base font-normal text-neutral-950 outline-none focus:border-neutral-950 md:h-11 md:text-sm"
+                    className="h-12 w-full rounded-lg border bg-white px-3 text-base font-normal text-neutral-950 outline-none focus:border-neutral-950 md:h-11 md:text-sm"
                     type="text"
                     inputMode="numeric"
                     autoComplete="postal-code"

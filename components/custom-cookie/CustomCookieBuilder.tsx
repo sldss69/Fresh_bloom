@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Check, ChevronDown, Flower2, Leaf, Minus, Plus, RotateCcw, ShoppingBag } from "lucide-react";
 
@@ -16,6 +17,8 @@ interface FlowerOption {
   name: string;
   group: string;
   colors?: string[];
+  pricePerStem?: number; // MXN por tallo
+  image?: string;
 }
 
 interface FlowerSelection {
@@ -50,72 +53,101 @@ const bouquetOptions: FlowerOption[] = [
     name: "Tulipanes",
     group: "Flores principales",
     colors: ["Rojo", "Rosa", "Amarillo", "Blanco", "Morado"],
+    pricePerStem: 100,
+    image: "/images/crea-tu-ramo/tulipan.png",
   },
   {
     id: "ranunculos",
     name: "Ranúnculos",
     group: "Flores principales",
     colors: ["Naranja", "Rojo", "Blanco", "Amarillo"],
+    pricePerStem: 28,
+    image: "/images/crea-tu-ramo/ranunculo.png",
   },
   {
     id: "rosas",
     name: "Rosas",
     group: "Flores principales",
     colors: ["Roja", "Rosa", "Blanca", "Amarilla"],
+    pricePerStem: 18,
+    image: "/images/crea-tu-ramo/rosa.png",
   },
   {
     id: "mini-rosas",
     name: "Mini rosas",
     group: "Flores principales",
     colors: ["Roja", "Rosa", "Blanca", "Amarilla"],
+    pricePerStem: 15,
+    image: "/images/crea-tu-ramo/minirosa.png",
   },
   {
     id: "gerberas",
     name: "Gerberas",
     group: "Flores principales",
     colors: ["Naranja", "Roja", "Fucsia", "Amarilla", "Blanca"],
+    pricePerStem: 40,
+    image: "/images/crea-tu-ramo/gerbera.png",
   },
   {
     id: "orquideas",
     name: "Orquídeas",
     group: "Flores principales",
     colors: ["Blanca", "Morada"],
+    image: "/images/crea-tu-ramo/orquidea.png",
   },
   {
     id: "lilis",
     name: "Lilis",
     group: "Flores principales",
     colors: ["Rosa", "Blanca"],
+    pricePerStem: 39.93,
+    image: "/images/crea-tu-ramo/lili.png",
   },
   {
     id: "lirio",
     name: "Lirio",
     group: "Flores principales",
     colors: ["Rosa", "Blanco"],
+    pricePerStem: 59.93,
+    image: "/images/crea-tu-ramo/lirio.png",
   },
   {
     id: "rosa-inglesa",
     name: "Rosa inglesa",
     group: "Flores principales",
     colors: ["Rosa", "Blanca", "Roja"],
+    pricePerStem: 27.96,
+    image: "/images/crea-tu-ramo/rosa_inglesa.png",
   },
   {
     id: "claveles",
     name: "Claveles",
     group: "Flores principales",
     colors: ["Blanco", "Rosa", "Amarillo", "Rojo"],
+    pricePerStem: 17.5,
+    image: "/images/crea-tu-ramo/clavel.png",
   },
   {
     id: "hortensias",
     name: "Hortensias",
     group: "Flores principales",
     colors: ["Azul", "Rosa", "Blanca"],
+    image: "/images/crea-tu-ramo/hortensia.png",
   },
   {
     id: "astromelias",
     name: "Astromelias",
     group: "Flores principales",
     colors: ["Rosa", "Roja", "Amarilla"],
+    image: "/images/crea-tu-ramo/astromelia.png",
+  },
+  {
+    id: "peonias",
+    name: "Peonías",
+    group: "Flores principales",
+    colors: ["Rosa", "Blanca", "Roja", "Fucsia"],
+    pricePerStem: 1500,
+    image: "/images/crea-tu-ramo/peonia.png",
   },
   // ── Complementos ────────────────────────────────────────────────────────
   {
@@ -239,9 +271,18 @@ function FlowerCard({
         </span>
 
         <div className="flex-1 min-w-0">
-          <span className="block font-heading text-[0.95rem] font-semibold text-brand-ink leading-tight">
-            {option.name}
-          </span>
+          <div className="flex items-baseline gap-2">
+            <span className="block font-heading text-[0.95rem] font-semibold text-brand-ink leading-tight">
+              {option.name}
+            </span>
+            {option.pricePerStem && !isSelected && (
+              <span className="text-[10px] font-medium text-brand-ink/35 shrink-0">
+                ${option.pricePerStem % 1 === 0
+                  ? option.pricePerStem
+                  : option.pricePerStem.toFixed(2)}/tallo
+              </span>
+            )}
+          </div>
           {isSelected && !isOpen && (
             <span className="flex items-center gap-1.5 mt-1">
               {selection.color && (
@@ -254,6 +295,11 @@ function FlowerCard({
                 {selection.quantity} tallos
                 {selection.color ? ` · ${selection.color}` : ""}
               </span>
+              {option.pricePerStem && (
+                <span className="text-[10px] font-bold text-brand-wine ml-auto">
+                  = ${(option.pricePerStem * selection.quantity).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                </span>
+              )}
             </span>
           )}
         </div>
@@ -270,104 +316,136 @@ function FlowerCard({
       {isOpen && (
         <div className="border-t border-brand-wine/8 bg-[#FDFAF7] px-5 pb-5 pt-4 space-y-5">
 
-          {/* Color swatches */}
-          {option.colors && option.colors.length > 0 && (
-            <div>
-              <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-ink/35">
-                Color
-              </p>
-              <div className="flex flex-wrap gap-3">
-                {option.colors.map((c) => {
-                  const isWhiteColor = ["Blanco", "Blanca"].includes(c);
-                  const active = color === c;
-                  return (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setColor(c)}
-                      className="flex flex-col items-center gap-1.5 group"
-                    >
-                      <span
-                        className={cn(
-                          "flex h-9 w-9 items-center justify-center rounded-full ring-2 ring-offset-2 transition-all duration-150",
-                          active
-                            ? "ring-brand-wine scale-110"
-                            : "ring-transparent group-hover:ring-brand-wine/30 group-hover:scale-105",
-                          isWhiteColor && "border border-brand-wine/15",
-                        )}
-                        style={{ backgroundColor: COLOR_HEX[c] ?? "#d4b8a0" }}
-                      >
-                        {active && (
-                          <Check
+          <div className={cn(
+            "gap-5",
+            option.image ? "grid sm:grid-cols-[1fr_minmax(180px,240px)] sm:items-start" : "",
+          )}>
+            <div className="space-y-5">
+              {/* Color swatches */}
+              {option.colors && option.colors.length > 0 && (
+                <div>
+                  <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-ink/35">
+                    Color
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {option.colors.map((c) => {
+                      const isWhiteColor = ["Blanco", "Blanca"].includes(c);
+                      const active = color === c;
+                      return (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setColor(c)}
+                          className="flex flex-col items-center gap-1.5 group"
+                        >
+                          <span
                             className={cn(
-                              "h-3.5 w-3.5",
-                              isWhiteColor ? "text-brand-ink/60" : "text-white",
+                              "flex h-9 w-9 items-center justify-center rounded-full ring-2 ring-offset-2 transition-all duration-150",
+                              active
+                                ? "ring-brand-wine scale-110"
+                                : "ring-transparent group-hover:ring-brand-wine/30 group-hover:scale-105",
+                              isWhiteColor && "border border-brand-wine/15",
                             )}
-                          />
-                        )}
-                      </span>
-                      <span
-                        className={cn(
-                          "text-[9px] font-semibold transition-colors",
-                          active ? "text-brand-wine" : "text-brand-ink/45",
-                        )}
-                      >
-                        {c}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Quantity stepper */}
-          <div>
-            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-ink/35">
-              Cantidad
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center rounded-full border border-brand-wine/15 bg-brand-cream/60 p-1">
-                <button
-                  type="button"
-                  onClick={() => setQty((q) => Math.max(1, q - 1))}
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-brand-wine transition hover:bg-white hover:shadow-sm"
-                >
-                  <Minus className="h-3.5 w-3.5" />
-                </button>
-                <span className="w-10 text-center text-sm font-bold text-brand-ink tabular-nums">
-                  {qty}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setQty((q) => q + 1)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-brand-wine transition hover:bg-white hover:shadow-sm"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                </button>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setQty((q) => q + 10)}
-                className="rounded-full bg-brand-beige/60 px-3.5 py-2 text-[11px] font-bold text-brand-wine transition hover:bg-brand-beige"
-              >
-                +10
-              </button>
-
-              {qty > 10 && (
-                <button
-                  type="button"
-                  onClick={() => setQty((q) => Math.max(1, q - 10))}
-                  className="rounded-full bg-brand-beige/40 px-3.5 py-2 text-[11px] font-bold text-brand-ink/50 transition hover:bg-brand-beige/70"
-                >
-                  −10
-                </button>
+                            style={{ backgroundColor: COLOR_HEX[c] ?? "#d4b8a0" }}
+                          >
+                            {active && (
+                              <Check
+                                className={cn(
+                                  "h-3.5 w-3.5",
+                                  isWhiteColor ? "text-brand-ink/60" : "text-white",
+                                )}
+                              />
+                            )}
+                          </span>
+                          <span
+                            className={cn(
+                              "text-[9px] font-semibold transition-colors",
+                              active ? "text-brand-wine" : "text-brand-ink/45",
+                            )}
+                          >
+                            {c}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               )}
 
-              <span className="text-xs text-brand-ink/35 ml-1">tallos</span>
+              {/* Quantity stepper */}
+              <div>
+                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-ink/35">
+                  Cantidad
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center rounded-full border border-brand-wine/15 bg-brand-cream/60 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setQty((q) => Math.max(1, q - 1))}
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-brand-wine transition hover:bg-white hover:shadow-sm"
+                    >
+                      <Minus className="h-3.5 w-3.5" />
+                    </button>
+                    <span className="w-10 text-center text-sm font-bold text-brand-ink tabular-nums">
+                      {qty}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setQty((q) => q + 1)}
+                      className="flex h-8 w-8 items-center justify-center rounded-full text-brand-wine transition hover:bg-white hover:shadow-sm"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setQty((q) => q + 10)}
+                    className="rounded-full bg-brand-beige/60 px-3.5 py-2 text-[11px] font-bold text-brand-wine transition hover:bg-brand-beige"
+                  >
+                    +10
+                  </button>
+
+                  {qty > 10 && (
+                    <button
+                      type="button"
+                      onClick={() => setQty((q) => Math.max(1, q - 10))}
+                      className="rounded-full bg-brand-beige/40 px-3.5 py-2 text-[11px] font-bold text-brand-ink/50 transition hover:bg-brand-beige/70"
+                    >
+                      −10
+                    </button>
+                  )}
+
+                  <span className="text-xs text-brand-ink/35 ml-1">tallos</span>
+                </div>
+              </div>
             </div>
+
+            {option.image && (
+              <div className="relative aspect-square w-full">
+                <Image
+                  src={option.image}
+                  alt={option.name}
+                  fill
+                  sizes="(min-width: 640px) 240px, 100vw"
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
+            )}
           </div>
+
+          {/* Live subtotal */}
+          {option.pricePerStem && (
+            <div className="flex items-center justify-between rounded-xl bg-brand-wine/6 px-4 py-2.5">
+              <span className="text-xs text-brand-ink/55">
+                {qty} × ${option.pricePerStem % 1 === 0 ? option.pricePerStem : option.pricePerStem.toFixed(2)}
+              </span>
+              <span className="text-sm font-bold text-brand-wine">
+                ${(option.pricePerStem * qty).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+          )}
 
           {/* Action buttons */}
           <div className="flex gap-2 pt-1">
@@ -495,6 +573,11 @@ export function CustomCookieBuilder() {
   };
 
   const totalFlowerCount = flowerSelections.reduce((sum, s) => sum + s.quantity, 0);
+
+  const totalPrice = flowerSelections.reduce((sum, s) => {
+    const opt = bouquetOptions.find((o) => o.id === s.id);
+    return sum + (opt?.pricePerStem ?? 0) * s.quantity;
+  }, 0);
   const showJarron = totalFlowerCount < 75;
 
   // Auto-deselect jarrón when total stalks reach 75+
@@ -510,6 +593,20 @@ export function CustomCookieBuilder() {
 
   const totalSelections =
     flowerSelections.length + Object.keys(simpleSelections).length;
+
+  // ── Validation: each group needs at least one selection ──────────────────
+  const groupComplete: Record<string, boolean> = {
+    "Flores principales": flowerSelections.some(
+      (s) => bouquetOptions.find((o) => o.id === s.id)?.group === "Flores principales",
+    ),
+    Complementos: flowerSelections.some(
+      (s) => bouquetOptions.find((o) => o.id === s.id)?.group === "Complementos",
+    ),
+    Follaje: !!simpleSelections["Follaje"],
+    Presentación: !!simpleSelections["Presentación"],
+  };
+  const isComplete = Object.values(groupComplete).every(Boolean);
+  const missingGroups = GROUP_ORDER.filter((g) => !groupComplete[g]);
 
   const buildIngredients = () => {
     const flowers = flowerSelections.map((sel) => {
@@ -528,6 +625,7 @@ export function CustomCookieBuilder() {
       name: recipeName,
       ingredients: buildIngredients(),
       image: "/images/products/aura-floral.jpg",
+      price: totalPrice,
     });
     setAdded(true);
   };
@@ -571,18 +669,30 @@ export function CustomCookieBuilder() {
 
           return (
             <section key={group} className="grid gap-4">
-              <div>
-                <h2 className="font-heading text-2xl font-semibold text-brand-wine">
-                  {group}
-                </h2>
-                <p className="mt-1 text-sm text-brand-ink/60">
-                  {GROUP_DESC[group]}
-                  {group === "Presentación" && !showJarron && (
-                    <span className="ml-2 text-brand-wine/60 font-medium">
-                      · Jarrón no disponible para ramos de 75+ tallos
-                    </span>
-                  )}
-                </p>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="font-heading text-2xl font-semibold text-brand-wine">
+                    {group}
+                  </h2>
+                  <p className="mt-1 text-sm text-brand-ink/60">
+                    {GROUP_DESC[group]}
+                    {group === "Presentación" && !showJarron && (
+                      <span className="ml-2 text-brand-wine/60 font-medium">
+                        · Jarrón no disponible para ramos de 75+ tallos
+                      </span>
+                    )}
+                  </p>
+                </div>
+                {groupComplete[group] ? (
+                  <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-bold text-emerald-600 ring-1 ring-emerald-200">
+                    <Check className="h-3 w-3" strokeWidth={2.5} />
+                    Listo
+                  </span>
+                ) : (
+                  <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-brand-beige/60 px-3 py-1 text-[10px] font-bold text-brand-wine/60 ring-1 ring-brand-wine/15">
+                    Requerido
+                  </span>
+                )}
               </div>
 
               <div className="grid gap-2.5 sm:grid-cols-2 items-start">
@@ -699,12 +809,48 @@ export function CustomCookieBuilder() {
           )}
         </div>
 
+        {/* Missing groups warning */}
+        {!isComplete && totalSelections > 0 && (
+          <div className="mt-4 rounded-xl border border-brand-wine/15 bg-brand-beige/30 px-4 py-3">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-brand-wine/60 mb-1.5">
+              Falta elegir
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {missingGroups.map((g) => (
+                <span
+                  key={g}
+                  className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-brand-wine shadow-sm"
+                >
+                  {g}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Total price */}
+        {totalPrice > 0 && (
+          <div className="mt-4 flex items-center justify-between rounded-xl border border-brand-wine/15 bg-brand-wine/5 px-4 py-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-brand-ink/40">
+                Total estimado
+              </p>
+              <p className="text-[10px] text-brand-ink/40 mt-0.5">
+                Flores con precio registrado
+              </p>
+            </div>
+            <span className="font-heading text-xl font-bold text-brand-wine">
+              ${totalPrice.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+            </span>
+          </div>
+        )}
+
         {/* Actions */}
-        <div className="mt-6 grid gap-3">
+        <div className="mt-4 grid gap-3">
           <Button
             type="button"
             className="h-12"
-            disabled={totalSelections === 0}
+            disabled={!isComplete}
             onClick={addToCart}
           >
             {added ? (
@@ -719,7 +865,7 @@ export function CustomCookieBuilder() {
             type="button"
             variant="outline"
             className="h-12"
-            disabled={totalSelections === 0}
+            disabled={!isComplete}
             onClick={goToCheckout}
           >
             <ShoppingBag className="h-4 w-4" />

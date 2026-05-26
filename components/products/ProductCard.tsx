@@ -17,7 +17,7 @@ interface ProductCardProps {
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
-  const hasImage = false;
+  const hasImage = !!product.image;
   const cardRef = useRef<HTMLElement>(null);
 
   function handleMouseMove(e: React.MouseEvent<HTMLElement>) {
@@ -54,15 +54,43 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       className="group flex flex-col overflow-hidden rounded-2xl border border-brand-wine/10 bg-white shadow-sm transition-shadow hover:shadow-md"
     >
       {/* ── Imagen ─────────────────────────────────────────── */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-brand-beige/20">
+      <div
+        className="relative flex h-[300px] items-center justify-center overflow-hidden md:h-[340px] lg:h-[360px]"
+        style={{ backgroundColor: product.imageBg ?? "#F0E5DD" }}
+      >
         {hasImage && product.image ? (
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-          />
+          <>
+            {/* Halo radial suave — separa el cristal del fondo cálido sin ensuciarlo */}
+            {product.category === "jarrones" && (
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.45)_0%,rgba(255,255,255,0)_55%)]"
+              />
+            )}
+
+            {/* Sombra ovalada radial — apoya el producto sobre el fondo */}
+            {product.imageShadow && (
+              <div
+                aria-hidden
+                className="pointer-events-none absolute bottom-[28%] left-1/2 h-14 w-[42%] -translate-x-1/2 rounded-full bg-[rgba(70,50,40,0.18)] blur-2xl"
+              />
+            )}
+            <Image
+              src={product.image}
+              alt={product.name}
+              width={600}
+              height={700}
+              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+              className={`relative z-10 w-[78%] object-contain transition-transform duration-500 group-hover:scale-[1.03] ${product.imageClassName ?? ""}`}
+              style={{
+                filter:
+                  product.imageFilter ??
+                  (product.imageShadow
+                    ? "contrast(1.06) brightness(1.02) saturate(0.96) drop-shadow(0 10px 14px rgba(60,45,35,0.10))"
+                    : undefined),
+              }}
+            />
+          </>
         ) : (
           <div className={`absolute inset-0 flex flex-col items-center justify-center gap-3 ${product.accentClass}`}>
             <Leaf className="h-10 w-10 opacity-25" />

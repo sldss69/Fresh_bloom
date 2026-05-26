@@ -19,7 +19,9 @@ const CATEGORIES: { key: "all" | ProductCategory; label: string }[] = [
   { key: "all",     label: "Todos"      },
   { key: "ramos",   label: "Ramos"      },
   { key: "jarron",  label: "Con jarrón" },
+  { key: "jarrones",label: "Jarrones"   },
   { key: "plantas", label: "Plantas"    },
+  { key: "macetas", label: "Macetas"    },
   { key: "extras",  label: "Extras"     },
 ];
 

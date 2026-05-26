@@ -36,6 +36,8 @@ export type FeaturedProduct = {
   name: string;
   price: number;
   image?: string;
+  imagePosition?: string;
+  imageClassName?: string;
   category?: string;
   description?: string;
 };
@@ -49,6 +51,8 @@ const FEATURED: FeaturedProduct[] = products
     name: p.name,
     price: p.price,
     image: p.image,
+    imagePosition: p.imagePosition,
+    imageClassName: p.imageClassName,
     category: p.tag,
     description: p.description,
   }));
@@ -124,15 +128,18 @@ function ProductCard({ product, index }: { product: FeaturedProduct; index: numb
       onMouseLeave={handleMouseLeave}
       style={{ transition: "transform 0.15s ease, box-shadow 0.15s ease" }}
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-brand-beige/25">
+      <div
+        className="relative flex h-[300px] items-center justify-center overflow-hidden md:h-[340px] lg:h-[360px]"
+        style={{ backgroundColor: "#F0E5DD" }}
+      >
         {product.image ? (
           <Image
             src={product.image}
             alt={product.name}
-            fill
+            width={600}
+            height={700}
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 90vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-              style={{ objectPosition: product.imagePosition ?? "center" }}
+            className={`object-contain transition-transform duration-500 group-hover:scale-[1.03] ${product.imageClassName ?? "w-[74%]"}`}
           />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-brand-beige/30 text-brand-wine">

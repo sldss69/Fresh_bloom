@@ -32,10 +32,7 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr] md:gap-12">
           {/* Brand */}
           <div>
-            <FreshBloomLogo className="mb-1" />
-            <p className="mb-4 ml-0.5 text-xs tracking-[0.16em] text-brand-wine/45">
-              Flower shop &amp; studio
-            </p>
+            <FreshBloomLogo className="mb-4" />
             <p className="max-w-xs text-sm leading-6 text-brand-ink/60">
               Arreglos florales hechos con amor para momentos que merecen ser
               recordados. Pedidos en línea con pago seguro y seguimiento por
