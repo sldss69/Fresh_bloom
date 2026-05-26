@@ -22,10 +22,10 @@ export function FreshBloomLogo({
   compact = false,
   variant = "onLight",
 }: FreshBloomLogoProps) {
-  const imgSizes = compact ? "200px" : "360px";
+  const imgSizes = compact ? "260px" : "480px";
   const imgClass = cn(
     "w-auto object-contain",
-    compact ? "h-12 md:h-14" : "h-20 md:h-24",
+    compact ? "h-16 md:h-18" : "h-28 md:h-36",
   );
 
   if (variant === "onDark") {
