@@ -60,19 +60,25 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       >
         {hasImage && product.image ? (
           <>
-            {/* Halo radial suave — separa el cristal del fondo cálido sin ensuciarlo */}
+            {/* Halo radial — más sutil para cristal: separa sin lavar el vidrio */}
             {product.category === "jarrones" && (
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.45)_0%,rgba(255,255,255,0)_55%)]"
+                className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.34)_0%,rgba(255,255,255,0)_52%)]"
               />
             )}
 
-            {/* Sombra ovalada radial — apoya el producto sobre el fondo */}
-            {product.imageShadow && (
+            {/* Sombra ovalada radial — ligera para cristal, más densa para cerámica */}
+            {product.imageShadow && product.category !== "jarrones" && (
               <div
                 aria-hidden
                 className="pointer-events-none absolute bottom-[28%] left-1/2 h-14 w-[42%] -translate-x-1/2 rounded-full bg-[rgba(70,50,40,0.18)] blur-2xl"
+              />
+            )}
+            {product.category === "jarrones" && (
+              <div
+                aria-hidden
+                className="pointer-events-none absolute bottom-[26%] left-1/2 h-10 w-[34%] -translate-x-1/2 rounded-full bg-[rgba(70,55,45,0.10)] blur-xl"
               />
             )}
             <Image
