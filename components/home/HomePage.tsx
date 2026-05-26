@@ -7,7 +7,6 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import { products } from "@/lib/mock-products";
 import { TransparentImage } from "@/components/ui/TransparentImage";
-import { DeliveryCountdown } from "@/components/ui/DeliveryCountdown";
 
 // ─── Variantes reutilizables ──────────────────────────────────────────────────
 
@@ -133,6 +132,7 @@ function ProductCard({ product, index }: { product: FeaturedProduct; index: numb
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 90vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
+              style={{ objectPosition: product.imagePosition ?? "center" }}
           />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-brand-beige/30 text-brand-wine">
@@ -314,13 +314,6 @@ export function HomePage() {
               </Link>
             </motion.div>
 
-            {/* Countdown de entrega */}
-            <motion.div
-              variants={fadeUp} initial="hidden" animate="visible" custom={0.52}
-              className="mt-5"
-            >
-              <DeliveryCountdown />
-            </motion.div>
 
             <motion.div
               variants={fadeUp} initial="hidden" animate="visible" custom={0.60}
