@@ -573,13 +573,18 @@ export function HomePage() {
               viewport={{ once: true, margin: "-60px" }}
               className="relative"
             >
-              {/* Imagen principal placeholder */}
-              <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-brand-wine/10 bg-gradient-to-br from-brand-beige/60 via-brand-cream to-brand-mauve/20">
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-brand-wine/18">
-                  <Leaf className="h-20 w-20" />
-                </div>
-                {/* Overlay interior decorativo */}
-                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-brand-beige/40 to-transparent" />
+              {/* Imagen principal — arreglo editorial Fresh Bloom */}
+              <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-brand-wine/10 bg-brand-cream shadow-sm">
+                <Image
+                  src="/images/landing/nuestra-historia.jpg"
+                  alt="Arreglo floral editorial Fresh Bloom — rosas, lisianthus y eucalipto"
+                  fill
+                  sizes="(min-width: 768px) 480px, 90vw"
+                  priority={false}
+                  className="object-cover object-center"
+                />
+                {/* Overlay interior decorativo — funde la imagen con el resto de la sección */}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-brand-beige/30 to-transparent" />
               </div>
 
               {/* Badge flotante — "Hecho en Mérida" */}

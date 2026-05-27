@@ -149,34 +149,68 @@ const bouquetOptions: FlowerOption[] = [
     pricePerStem: 1500,
     image: "/images/crea-tu-ramo/peonia.png",
   },
-  // ── Complementos ────────────────────────────────────────────────────────
+  // ── Complementos ─ precio fijo $200, sin cantidades (qty=1) ─────────────
   {
     id: "gypsophila",
     name: "Gypsophila",
     group: "Complementos",
+    pricePerStem: 200,
   },
   {
     id: "veronicas",
     name: "Veronicas",
     group: "Complementos",
     colors: ["Morada", "Blanca"],
+    pricePerStem: 200,
   },
   {
     id: "flores-mixtas",
     name: "Flores mixtas",
     group: "Complementos",
+    pricePerStem: 200,
   },
-  // ── Follaje ─────────────────────────────────────────────────────────────
-  { id: "eucalipto", name: "Eucalipto", group: "Follaje" },
-  { id: "ruscus", name: "Ruscus", group: "Follaje" },
-  { id: "follaje-tropical", name: "Follaje tropical", group: "Follaje" },
-  { id: "helecho", name: "Helecho", group: "Follaje" },
-  // ── Presentación ────────────────────────────────────────────────────────
-  { id: "papel-rosa", name: "Papel rosa", group: "Presentación" },
-  { id: "papel-kraft", name: "Papel kraft", group: "Presentación" },
-  { id: "jarron", name: "Jarrón", group: "Presentación" },
-  { id: "base-floral", name: "Base floral", group: "Presentación" },
-  { id: "mono-satinado", name: "Moño satinado", group: "Presentación" },
+  // ── Follaje ─ todas $100 ────────────────────────────────────────────────
+  { id: "eucalipto",         name: "Eucalipto",         group: "Follaje", pricePerStem: 100 },
+  { id: "ruscus",            name: "Ruscus",            group: "Follaje", pricePerStem: 100 },
+  { id: "follaje-tropical",  name: "Follaje tropical",  group: "Follaje", pricePerStem: 100 },
+  { id: "helecho",           name: "Helecho",           group: "Follaje", pricePerStem: 100 },
+  // ── Presentación ─ todas $200 (excepto Jarrón que usa variantes) ────────
+  { id: "papel-rosa",     name: "Papel rosa",     group: "Presentación", pricePerStem: 200 },
+  { id: "papel-kraft",    name: "Papel kraft",    group: "Presentación", pricePerStem: 200 },
+  { id: "jarron",         name: "Jarrón",         group: "Presentación" },
+  { id: "base-floral",    name: "Base floral",    group: "Presentación", pricePerStem: 200 },
+  { id: "mono-satinado",  name: "Moño satinado",  group: "Presentación", pricePerStem: 200 },
+];
+
+// ─── Variantes de jarrón (dropdown que se abre al seleccionar "Jarrón") ──────
+
+interface JarronVariant {
+  id: string;
+  name: string;
+  image: string;
+  /** Precio MXN (sincronizado con el catálogo) */
+  price: number;
+}
+
+const JARRON_VARIANTS: JarronVariant[] = [
+  {
+    id: "florero-elisse",
+    name: "Florero Elisse",
+    image: "/images/products/jarrones/florero_elisse_clean.png",
+    price: 160,
+  },
+  {
+    id: "florero-siena",
+    name: "Florero Siena",
+    image: "/images/products/jarrones/florero_siena_clean.png",
+    price: 115,
+  },
+  {
+    id: "florero-atenea",
+    name: "Florero Atenea",
+    image: "/images/products/jarrones/florero_atenea_clean.png",
+    price: 296,
+  },
 ];
 
 // Groups where multiple selections + qty/color are allowed
@@ -213,19 +247,21 @@ function FlowerCard({
   onUpdate: (id: string, color: string | undefined, quantity: number) => void;
   onRemove: (id: string) => void;
 }) {
+  const isComplemento = option.group === "Complementos";
   const [color, setColor] = useState<string>(
     selection?.color ?? option.colors?.[0] ?? "",
   );
-  const [qty, setQty] = useState(selection?.quantity ?? 3);
+  // Complementos no tienen cantidad — siempre 1
+  const [qty, setQty] = useState(isComplemento ? 1 : selection?.quantity ?? 3);
   const isSelected = !!selection;
 
   // Sync local state when selection changes externally
   useEffect(() => {
     if (selection) {
       setColor(selection.color ?? option.colors?.[0] ?? "");
-      setQty(selection.quantity);
+      setQty(isComplemento ? 1 : selection.quantity);
     }
-  }, [selection, option.colors]);
+  }, [selection, option.colors, isComplemento]);
 
   const handleConfirm = () => {
     onUpdate(option.id, option.colors?.length ? color : undefined, qty);
@@ -277,9 +313,11 @@ function FlowerCard({
             </span>
             {option.pricePerStem && !isSelected && (
               <span className="text-[10px] font-medium text-brand-ink/35 shrink-0">
-                ${option.pricePerStem % 1 === 0
-                  ? option.pricePerStem
-                  : option.pricePerStem.toFixed(2)}/tallo
+                {isComplemento
+                  ? `$${option.pricePerStem}`
+                  : `$${option.pricePerStem % 1 === 0
+                      ? option.pricePerStem
+                      : option.pricePerStem.toFixed(2)}/tallo`}
               </span>
             )}
           </div>
@@ -292,12 +330,13 @@ function FlowerCard({
                 />
               )}
               <span className="text-[10px] font-semibold text-brand-wine/65 tracking-wide">
-                {selection.quantity} tallos
-                {selection.color ? ` · ${selection.color}` : ""}
+                {isComplemento
+                  ? (selection.color ?? "Listo")
+                  : `${selection.quantity} tallos${selection.color ? ` · ${selection.color}` : ""}`}
               </span>
               {option.pricePerStem && (
                 <span className="text-[10px] font-bold text-brand-wine ml-auto">
-                  = ${(option.pricePerStem * selection.quantity).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                  ${(option.pricePerStem * selection.quantity).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
                 </span>
               )}
             </span>
@@ -372,53 +411,55 @@ function FlowerCard({
                 </div>
               )}
 
-              {/* Quantity stepper */}
-              <div>
-                <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-ink/35">
-                  Cantidad
-                </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="flex items-center rounded-full border border-brand-wine/15 bg-brand-cream/60 p-1">
+              {/* Quantity stepper — solo para Flores principales (no Complementos) */}
+              {!isComplemento && (
+                <div>
+                  <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-ink/35">
+                    Cantidad
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center rounded-full border border-brand-wine/15 bg-brand-cream/60 p-1">
+                      <button
+                        type="button"
+                        onClick={() => setQty((q) => Math.max(1, q - 1))}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-brand-wine transition hover:bg-white hover:shadow-sm"
+                      >
+                        <Minus className="h-3.5 w-3.5" />
+                      </button>
+                      <span className="w-10 text-center text-sm font-bold text-brand-ink tabular-nums">
+                        {qty}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setQty((q) => q + 1)}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-brand-wine transition hover:bg-white hover:shadow-sm"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+
                     <button
                       type="button"
-                      onClick={() => setQty((q) => Math.max(1, q - 1))}
-                      className="flex h-8 w-8 items-center justify-center rounded-full text-brand-wine transition hover:bg-white hover:shadow-sm"
+                      onClick={() => setQty((q) => q + 10)}
+                      className="rounded-full bg-brand-beige/60 px-3.5 py-2 text-[11px] font-bold text-brand-wine transition hover:bg-brand-beige"
                     >
-                      <Minus className="h-3.5 w-3.5" />
+                      +10
                     </button>
-                    <span className="w-10 text-center text-sm font-bold text-brand-ink tabular-nums">
-                      {qty}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setQty((q) => q + 1)}
-                      className="flex h-8 w-8 items-center justify-center rounded-full text-brand-wine transition hover:bg-white hover:shadow-sm"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                    </button>
+
+                    {qty > 10 && (
+                      <button
+                        type="button"
+                        onClick={() => setQty((q) => Math.max(1, q - 10))}
+                        className="rounded-full bg-brand-beige/40 px-3.5 py-2 text-[11px] font-bold text-brand-ink/50 transition hover:bg-brand-beige/70"
+                      >
+                        −10
+                      </button>
+                    )}
+
+                    <span className="text-xs text-brand-ink/35 ml-1">tallos</span>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setQty((q) => q + 10)}
-                    className="rounded-full bg-brand-beige/60 px-3.5 py-2 text-[11px] font-bold text-brand-wine transition hover:bg-brand-beige"
-                  >
-                    +10
-                  </button>
-
-                  {qty > 10 && (
-                    <button
-                      type="button"
-                      onClick={() => setQty((q) => Math.max(1, q - 10))}
-                      className="rounded-full bg-brand-beige/40 px-3.5 py-2 text-[11px] font-bold text-brand-ink/50 transition hover:bg-brand-beige/70"
-                    >
-                      −10
-                    </button>
-                  )}
-
-                  <span className="text-xs text-brand-ink/35 ml-1">tallos</span>
                 </div>
-              </div>
+              )}
             </div>
 
             {option.image && (
@@ -439,7 +480,9 @@ function FlowerCard({
           {option.pricePerStem && (
             <div className="flex items-center justify-between rounded-xl bg-brand-wine/6 px-4 py-2.5">
               <span className="text-xs text-brand-ink/55">
-                {qty} × ${option.pricePerStem % 1 === 0 ? option.pricePerStem : option.pricePerStem.toFixed(2)}
+                {isComplemento
+                  ? "Precio del complemento"
+                  : `${qty} × $${option.pricePerStem % 1 === 0 ? option.pricePerStem : option.pricePerStem.toFixed(2)}`}
               </span>
               <span className="text-sm font-bold text-brand-wine">
                 ${(option.pricePerStem * qty).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
@@ -501,22 +544,208 @@ function SimpleCard({
       {!selected && (
         <Leaf className="pointer-events-none absolute right-10 top-1/2 h-7 w-7 -translate-y-1/2 text-brand-beige/60" />
       )}
-      <span className="font-heading text-[0.9rem] font-semibold relative z-10">{option.name}</span>
-      <span
-        className={cn(
-          "relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-all duration-200",
-          selected
-            ? "bg-brand-wine shadow-sm shadow-brand-wine/30"
-            : "border-2 border-brand-wine/18 bg-brand-beige/25",
+      <span className="relative z-10 font-heading text-[0.9rem] font-semibold">{option.name}</span>
+      <span className="relative z-10 flex items-center gap-2 ml-auto">
+        {option.pricePerStem && (
+          <span
+            className={cn(
+              "text-[11px] font-bold tabular-nums",
+              selected ? "text-brand-wine" : "text-brand-wine/55",
+            )}
+          >
+            ${option.pricePerStem.toLocaleString("es-MX")}
+          </span>
         )}
-      >
-        {selected ? (
-          <Check className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
-        ) : (
-          <Plus className="h-3.5 w-3.5 text-brand-wine/45" strokeWidth={2} />
-        )}
+        <span
+          className={cn(
+            "flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-all duration-200",
+            selected
+              ? "bg-brand-wine shadow-sm shadow-brand-wine/30"
+              : "border-2 border-brand-wine/18 bg-brand-beige/25",
+          )}
+        >
+          {selected ? (
+            <Check className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
+          ) : (
+            <Plus className="h-3.5 w-3.5 text-brand-wine/45" strokeWidth={2} />
+          )}
+        </span>
       </span>
     </button>
+  );
+}
+
+// ─── JarronCard — SimpleCard + dropdown con 3 variantes de florero ──────────
+
+function JarronCard({
+  option,
+  selected,
+  onToggle,
+  variant,
+  onPickVariant,
+}: {
+  option: FlowerOption;
+  selected: boolean;
+  onToggle: (id: string) => void;
+  variant: string | null;
+  onPickVariant: (id: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const activeVariant = JARRON_VARIANTS.find((v) => v.id === variant);
+
+  // Cierra el dropdown si se deselecciona el jarrón
+  useEffect(() => {
+    if (!selected) setOpen(false);
+  }, [selected]);
+
+  const handleCardClick = () => {
+    if (selected) {
+      // Si ya está seleccionado, alterna el dropdown
+      setOpen((o) => !o);
+    } else {
+      // Si no, lo selecciona y abre el dropdown automáticamente
+      onToggle(option.id);
+      setOpen(true);
+    }
+  };
+
+  return (
+    <div className={cn(open && selected && "sm:col-span-2")}>
+      <button
+        type="button"
+        aria-pressed={selected}
+        aria-expanded={open && selected}
+        onClick={handleCardClick}
+        className={cn(
+          "relative flex min-h-[3.25rem] w-full items-center justify-between gap-3 overflow-hidden rounded-2xl border px-4 py-3.5 text-left transition-all duration-200 hover:-translate-y-0.5",
+          selected
+            ? "border-l-[3px] border-l-brand-wine border-brand-wine/20 bg-brand-wine/5 shadow-md shadow-brand-wine/8 text-brand-ink"
+            : "border-brand-wine/12 bg-white text-brand-ink hover:border-brand-wine/25 hover:shadow-md hover:bg-[#FDFAF7]",
+        )}
+      >
+        {!selected && (
+          <Leaf className="pointer-events-none absolute right-10 top-1/2 h-7 w-7 -translate-y-1/2 text-brand-beige/60" />
+        )}
+        <div className="relative z-10 flex flex-1 items-center gap-3 min-w-0">
+          <span className="font-heading text-[0.9rem] font-semibold">{option.name}</span>
+          {selected && activeVariant && (
+            <span className="flex items-center gap-1.5 rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-brand-wine/70 shadow-sm">
+              <span className="relative h-3.5 w-3.5 overflow-hidden">
+                <Image
+                  src={activeVariant.image}
+                  alt=""
+                  fill
+                  sizes="14px"
+                  className="object-contain"
+                />
+              </span>
+              {activeVariant.name}
+              <span className="font-bold text-brand-wine">
+                ${activeVariant.price.toLocaleString("es-MX")}
+              </span>
+            </span>
+          )}
+        </div>
+        <span className="relative z-10 flex items-center gap-2">
+          {selected && (
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 text-brand-wine/50 transition-transform duration-200",
+                open && "rotate-180",
+              )}
+            />
+          )}
+          <span
+            className={cn(
+              "flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-all duration-200",
+              selected
+                ? "bg-brand-wine shadow-sm shadow-brand-wine/30"
+                : "border-2 border-brand-wine/18 bg-brand-beige/25",
+            )}
+          >
+            {selected ? (
+              <Check className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
+            ) : (
+              <Plus className="h-3.5 w-3.5 text-brand-wine/45" strokeWidth={2} />
+            )}
+          </span>
+        </span>
+      </button>
+
+      {/* Dropdown con las 3 variantes */}
+      {selected && open && (
+        <div className="mt-2 rounded-2xl border border-brand-wine/12 bg-[#FDFAF7] p-4 shadow-sm">
+          <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.15em] text-brand-ink/40">
+            Elige tu jarrón
+          </p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {JARRON_VARIANTS.map((v) => {
+              const active = variant === v.id;
+              return (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => onPickVariant(v.id)}
+                  aria-pressed={active}
+                  className={cn(
+                    "group relative flex flex-col items-center gap-2 rounded-xl border bg-white p-3 transition-all duration-200 hover:-translate-y-0.5",
+                    active
+                      ? "border-brand-wine ring-2 ring-brand-wine/30 shadow-md"
+                      : "border-brand-wine/12 hover:border-brand-wine/30 hover:shadow-md",
+                  )}
+                >
+                  {active && (
+                    <span className="absolute right-2 top-2 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-brand-wine shadow-sm ring-2 ring-white">
+                      <Check className="h-3 w-3 text-white" strokeWidth={2.5} />
+                    </span>
+                  )}
+                  <div
+                    className="relative aspect-square w-full overflow-hidden rounded-lg"
+                    style={{ backgroundColor: "#EDE0D6" }}
+                  >
+                    <Image
+                      src={v.image}
+                      alt={v.name}
+                      fill
+                      sizes="(min-width: 640px) 160px, 33vw"
+                      className="object-contain p-2"
+                    />
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span
+                      className={cn(
+                        "font-heading text-[0.82rem] font-semibold leading-tight",
+                        active ? "text-brand-wine" : "text-brand-ink/75",
+                      )}
+                    >
+                      {v.name}
+                    </span>
+                    <span
+                      className={cn(
+                        "text-[11px] font-bold tabular-nums",
+                        active ? "text-brand-wine" : "text-brand-ink/55",
+                      )}
+                    >
+                      ${v.price.toLocaleString("es-MX")}
+                      <span className="ml-0.5 text-[9px] font-normal text-brand-ink/35">MXN</span>
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Acción: confirma y cierra el dropdown (mismo flujo que Flores) */}
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="mt-4 w-full rounded-full bg-brand-wine py-2.5 text-xs font-bold text-white transition hover:bg-brand-red active:scale-[0.98]"
+          >
+            Agregar al ramo
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -530,6 +759,8 @@ export function CustomCookieBuilder() {
   const [flowerSelections, setFlowerSelections] = useState<FlowerSelection[]>([]);
   // Single-select (Follaje & Presentación): { [group]: id }
   const [simpleSelections, setSimpleSelections] = useState<Record<string, string>>({});
+  // Variante de jarrón seleccionada (solo aplica cuando se elige "Jarrón")
+  const [jarronVariant, setJarronVariant] = useState<string | null>(null);
 
   const [bouquetName, setBouquetName] = useState("");
   const [added, setAdded] = useState(false);
@@ -562,22 +793,56 @@ export function CustomCookieBuilder() {
   const toggleSimple = (id: string) => {
     setAdded(false);
     const option = bouquetOptions.find((o) => o.id === id)!;
-    setSimpleSelections((prev) => {
-      if (prev[option.group] === id) {
+    const isAlreadySelected = simpleSelections[option.group] === id;
+
+    if (isAlreadySelected) {
+      setSimpleSelections((prev) => {
         const next = { ...prev };
         delete next[option.group];
         return next;
+      });
+      if (id === "jarron") setJarronVariant(null);
+    } else {
+      setSimpleSelections((prev) => ({ ...prev, [option.group]: id }));
+      // Al seleccionar Jarrón, pre-elige el primer florero por defecto
+      if (id === "jarron" && !jarronVariant) {
+        setJarronVariant(JARRON_VARIANTS[0].id);
       }
-      return { ...prev, [option.group]: id };
-    });
+    }
+  };
+
+  const pickJarronVariant = (id: string) => {
+    setAdded(false);
+    setJarronVariant(id);
   };
 
   const totalFlowerCount = flowerSelections.reduce((sum, s) => sum + s.quantity, 0);
 
-  const totalPrice = flowerSelections.reduce((sum, s) => {
+  // ─── Precio total (Flores + Complementos + Follaje + Presentación) ─────────
+  const flowersPrice = flowerSelections.reduce((sum, s) => {
     const opt = bouquetOptions.find((o) => o.id === s.id);
     return sum + (opt?.pricePerStem ?? 0) * s.quantity;
   }, 0);
+  // Suma uniforme de Follaje + Presentación (jarrón usa variante)
+  const simplesPrice = Object.values(simpleSelections).reduce((sum, id) => {
+    if (id === "jarron") {
+      return (
+        sum +
+        (jarronVariant
+          ? JARRON_VARIANTS.find((j) => j.id === jarronVariant)?.price ?? 0
+          : 0)
+      );
+    }
+    return sum + (bouquetOptions.find((o) => o.id === id)?.pricePerStem ?? 0);
+  }, 0);
+  const presentacionPrice =
+    simpleSelections["Presentación"] === "jarron"
+      ? jarronVariant
+        ? JARRON_VARIANTS.find((j) => j.id === jarronVariant)?.price ?? 0
+        : 0
+      : bouquetOptions.find((o) => o.id === simpleSelections["Presentación"])
+          ?.pricePerStem ?? 0;
+  const totalPrice = flowersPrice + simplesPrice;
   const showJarron = totalFlowerCount < 75;
 
   // Auto-deselect jarrón when total stalks reach 75+
@@ -588,6 +853,7 @@ export function CustomCookieBuilder() {
         delete next["Presentación"];
         return next;
       });
+      setJarronVariant(null);
     }
   }, [showJarron, simpleSelections]);
 
@@ -611,10 +877,18 @@ export function CustomCookieBuilder() {
   const buildIngredients = () => {
     const flowers = flowerSelections.map((sel) => {
       const opt = bouquetOptions.find((o) => o.id === sel.id)!;
-      return `${sel.quantity}× ${opt.name}${sel.color ? ` ${sel.color}` : ""}`;
+      const isComp = opt.group === "Complementos";
+      return isComp
+        ? `${opt.name}${sel.color ? ` ${sel.color}` : ""}`
+        : `${sel.quantity}× ${opt.name}${sel.color ? ` ${sel.color}` : ""}`;
     });
     const simples = Object.values(simpleSelections).map((id) => {
       const opt = bouquetOptions.find((o) => o.id === id)!;
+      // Si es el jarrón, anexa el nombre del florero seleccionado
+      if (id === "jarron" && jarronVariant) {
+        const v = JARRON_VARIANTS.find((j) => j.id === jarronVariant);
+        return v ? `${opt.name} · ${v.name}` : opt.name;
+      }
       return opt.name;
     });
     return [...flowers, ...simples];
@@ -638,6 +912,7 @@ export function CustomCookieBuilder() {
   const reset = () => {
     setFlowerSelections([]);
     setSimpleSelections({});
+    setJarronVariant(null);
     setBouquetName("");
     setAdded(false);
   };
@@ -714,6 +989,15 @@ export function CustomCookieBuilder() {
                         onRemove={removeFlower}
                       />
                     </div>
+                  ) : option.id === "jarron" ? (
+                    <JarronCard
+                      key={option.id}
+                      option={option}
+                      selected={simpleSelections[option.group] === option.id}
+                      onToggle={toggleSimple}
+                      variant={jarronVariant}
+                      onPickVariant={pickJarronVariant}
+                    />
                   ) : (
                     <SimpleCard
                       key={option.id}
@@ -753,6 +1037,7 @@ export function CustomCookieBuilder() {
             <div className="mt-3 flex flex-col gap-1.5">
               {flowerSelections.map((sel) => {
                 const opt = bouquetOptions.find((o) => o.id === sel.id)!;
+                const isComp = opt.group === "Complementos";
                 return (
                   <div
                     key={sel.id}
@@ -776,7 +1061,7 @@ export function CustomCookieBuilder() {
                           }}
                         />
                       )}
-                      {sel.quantity}×
+                      {!isComp && <>{sel.quantity}×</>}
                       {sel.color && (
                         <span className="font-normal text-brand-ink/55">
                           {sel.color}
@@ -789,6 +1074,10 @@ export function CustomCookieBuilder() {
 
               {Object.values(simpleSelections).map((id) => {
                 const opt = bouquetOptions.find((o) => o.id === id)!;
+                const variant =
+                  id === "jarron" && jarronVariant
+                    ? JARRON_VARIANTS.find((j) => j.id === jarronVariant)
+                    : null;
                 return (
                   <div
                     key={id}
@@ -798,6 +1087,23 @@ export function CustomCookieBuilder() {
                     <span className="font-semibold text-brand-ink">
                       {opt.name}
                     </span>
+                    {variant && (
+                      <span className="ml-auto flex items-center gap-1.5 text-[10px] font-semibold text-brand-wine/70">
+                        <span className="relative h-3.5 w-3.5 overflow-hidden">
+                          <Image
+                            src={variant.image}
+                            alt=""
+                            fill
+                            sizes="14px"
+                            className="object-contain"
+                          />
+                        </span>
+                        {variant.name}
+                        <span className="font-bold text-brand-wine">
+                          ${variant.price.toLocaleString("es-MX")}
+                        </span>
+                      </span>
+                    )}
                   </div>
                 );
               })}
@@ -836,7 +1142,9 @@ export function CustomCookieBuilder() {
                 Total estimado
               </p>
               <p className="text-[10px] text-brand-ink/40 mt-0.5">
-                Flores con precio registrado
+                Flores, complementos
+                {simpleSelections["Follaje"] ? ", follaje" : ""}
+                {presentacionPrice > 0 ? " y presentación" : ""}
               </p>
             </div>
             <span className="font-heading text-xl font-bold text-brand-wine">

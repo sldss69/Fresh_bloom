@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, ShoppingBag, X } from "lucide-react";
+import { CreditCard, Menu, ShoppingBag, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
 import { FreshBloomLogo } from "@/components/brand/FreshBloomLogo";
@@ -94,6 +94,21 @@ export function Navbar() {
               )}
             </button>
 
+            {/* Checkout — atajo al pago */}
+            <Link
+              href="/checkout"
+              aria-label="Ir al checkout"
+              className={cn(
+                "hidden h-9 items-center gap-1.5 rounded-full border px-4 text-[0.63rem] font-bold uppercase tracking-[0.14em] transition-all duration-150 md:flex",
+                isHome
+                  ? "border-brand-ink/15 text-brand-ink/60 hover:border-brand-ink/30 hover:text-brand-ink"
+                  : "border-brand-wine/15 bg-white/55 text-brand-wine/65 hover:bg-white hover:text-brand-wine",
+              )}
+            >
+              <CreditCard className="h-3.5 w-3.5" />
+              <span>Checkout</span>
+            </Link>
+
             {/* CTA — Pedir ahora */}
             <Link
               href="/productos"
@@ -155,9 +170,17 @@ export function Navbar() {
                   </Link>
                 ))}
                 <Link
+                  href="/checkout"
+                  onClick={() => setMobileOpen(false)}
+                  className="mt-3 flex h-10 items-center justify-center gap-2 rounded-full border border-brand-wine/20 bg-white text-[0.65rem] font-bold uppercase tracking-[0.2em] text-brand-wine transition hover:border-brand-wine/40 hover:bg-brand-wine/5"
+                >
+                  <CreditCard className="h-3.5 w-3.5" />
+                  Checkout
+                </Link>
+                <Link
                   href="/productos"
                   onClick={() => setMobileOpen(false)}
-                  className="mt-3 flex h-10 items-center justify-center rounded-full bg-brand-wine text-[0.65rem] font-bold uppercase tracking-[0.2em] text-white transition hover:bg-brand-red"
+                  className="mt-2 flex h-10 items-center justify-center rounded-full bg-brand-wine text-[0.65rem] font-bold uppercase tracking-[0.2em] text-white transition hover:bg-brand-red"
                 >
                   Pedir ahora
                 </Link>
