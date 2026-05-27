@@ -31,7 +31,6 @@ export default function CheckoutPage() {
   const giftDetails = useCartStore((state) => state.giftDetails);
   const clearGiftDetails = useCartStore((state) => state.clearGiftDetails);
   const { totalItems, subtotal } = getCartTotals(items);
-  const hasCustomItems = items.some((item) => item.customRecipe);
   const [customer, setCustomer] = useState<OrderCustomer>({
     name: "",
     phone: "",
@@ -60,9 +59,7 @@ export default function CheckoutPage() {
     [items],
   );
   const paymentReady =
-    subtotal > 0 &&
-    !hasCustomItems &&
-    canCreateOrder(customer, deliverySchedule);
+    subtotal > 0 && canCreateOrder(customer, deliverySchedule);
   const giftNote = useMemo(() => {
     if (!giftDetails) {
       return "";
@@ -466,7 +463,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="mt-6 grid gap-3">
-              {!hasCustomItems && subtotal > 0 ? (
+              {subtotal > 0 ? (
                 <MercadoPagoPaymentBrick
                   amount={subtotal}
                   items={checkoutItems}
@@ -479,7 +476,7 @@ export default function CheckoutPage() {
               ) : (
                 <PaymentStatusNotice
                   status="idle"
-                  message="Los ramos personalizados se confirman por WhatsApp antes de pagar."
+                  message="Agrega productos al carrito para continuar al pago."
                 />
               )}
               <Button
